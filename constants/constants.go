@@ -21,7 +21,3 @@ const (
 	FILEPATH_TO_VIEWERSERVICE = "./idl/viewers.thrift"
 	VIEWERSERVICE_NAME        = "ViewerService" //name registered with svc registry as rpcendpoint
 )
-
-const (
-	GRPC_URL = "0.0.0.0:8000" //connects to grpc middleman
-)
