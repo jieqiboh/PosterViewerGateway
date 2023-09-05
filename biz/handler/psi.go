@@ -30,6 +30,7 @@ func PSI(ctx context.Context, c *app.RequestContext) {
 	jsonBody, _ := c.Body()
 	svcinfo, err := extractSvcInfoAsMap(jsonBody)
 	if err != nil {
+		c.String(consts.StatusBadRequest, "Error extracting service info sent")
 		return
 	}
 
@@ -48,7 +49,8 @@ func PSI(ctx context.Context, c *app.RequestContext) {
 
 			resList = append(resList, extractValueAsMap(jsonResp))
 		} else {
-			c.String(consts.StatusBadRequest, "Service or Method name not found for: "+svcname+", "+mtname)
+			c.SetStatusCode(consts.StatusBadRequest)
+			c.JSON(consts.StatusBadRequest, "Service or Method name not found for: "+svcname+", "+mtname)
 			return
 		}
 	}
