@@ -47,7 +47,13 @@ func PSI(ctx context.Context, c *app.RequestContext) {
 
 			jsonResp := reqContext.Response.Body()
 
-			resList = append(resList, extractValueAsMap(jsonResp))
+			strList, err := extractValueAsMap(jsonResp)
+			if err != nil {
+				c.SetStatusCode(consts.StatusInternalServerError)
+				c.JSON(consts.StatusInternalServerError, err)
+				return
+			}
+			resList = append(resList, strList)
 		} else {
 			c.SetStatusCode(consts.StatusBadRequest)
 			c.JSON(consts.StatusBadRequest, "Service or Method name not found for: "+svcname+", "+mtname)
@@ -94,7 +100,6 @@ func PSI(ctx context.Context, c *app.RequestContext) {
 	}
 
 	//Return response
-	fmt.Println(matchingKeys)
 	c.JSON(consts.StatusOK, matchingKeys)
 }
 
@@ -110,28 +115,28 @@ func Intersection(list *[]string, intersectionMap map[string]int, listsChecked *
 }
 
 // Takes the json response in bytes and extracts the list of strings
-func extractValueAsMap(jsonResponse []byte) []string {
+func extractValueAsMap(jsonResponse []byte) ([]string, error) {
 
 	// Declare a variable to store the parsed JSON data
 	// Unmarshal the JSON string to remove Go string escaping
 	var unescapedJSON string
 	if err := json.Unmarshal(jsonResponse, &unescapedJSON); err != nil {
 		fmt.Println("Error:", err)
-		return nil
+		return nil, err
 	}
 
 	// Unmarshal the unescaped JSON string to parse the JSON data
 	var data map[string][]string
 	if err := json.Unmarshal([]byte(unescapedJSON), &data); err != nil {
 		fmt.Println("Error:", err)
-		return nil
+		return nil, err
 	}
 
 	for _, v := range data {
-		return v
+		return v, nil
 	}
 	//if somehow there isn't data returned
-	return nil
+	return nil, nil
 }
 
 func extractSvcInfoAsMap(jsonBody []byte) (map[string]string, error) {
